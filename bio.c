@@ -29,17 +29,17 @@
 
 struct {
   struct spinlock lock;
-  struct buf buf[NBUF];
+  struct buf_t buf[NBUF];
 
   // Linked list of all buffers, through prev/next.
   // head.next is most recently used.
-  struct buf head;
+  struct buf_t head;
 } bcache;
 
 void
 binit(void)
 {
-  struct buf *b;
+  struct buf_t *b;
 
   initlock(&bcache.lock, "bcache");
 
@@ -58,10 +58,10 @@ binit(void)
 // Look through buffer cache for sector on device dev.
 // If not found, allocate fresh block.
 // In either case, return locked buffer.
-static struct buf*
+static struct buf_t*
 bget(uint dev, uint sector)
 {
-  struct buf *b;
+  struct buf_t *b;
 
   acquire(&bcache.lock);
 
@@ -93,10 +93,10 @@ bget(uint dev, uint sector)
 }
 
 // Return a B_BUSY buf with the contents of the indicated disk sector.
-struct buf*
+struct buf_t*
 bread(uint dev, uint sector)
 {
-  struct buf *b;
+  struct buf_t *b;
 
   b = bget(dev, sector);
   if(!(b->flags & B_VALID))
@@ -106,7 +106,7 @@ bread(uint dev, uint sector)
 
 // Write b's contents to disk.  Must be locked.
 void
-bwrite(struct buf *b)
+bwrite(struct buf_t *b)
 {
   if((b->flags & B_BUSY) == 0)
     panic("bwrite");
@@ -116,7 +116,7 @@ bwrite(struct buf *b)
 
 // Release the buffer b.
 void
-brelse(struct buf *b)
+brelse(struct buf_t *b)
 {
   if((b->flags & B_BUSY) == 0)
     panic("brelse");

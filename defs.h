@@ -1,4 +1,4 @@
-struct buf;
+struct buf_t;
 struct context;
 struct file;
 struct inode;
@@ -9,9 +9,9 @@ struct stat;
 
 // bio.c
 void            binit(void);
-struct buf*     bread(uint, uint);
-void            brelse(struct buf*);
-void            bwrite(struct buf*);
+struct buf_t*     bread(uint, uint);
+void            brelse(struct buf_t*);
+void            bwrite(struct buf_t*);
 
 // console.c
 void            consoleinit(void);
@@ -52,7 +52,7 @@ int             writei(struct inode*, char*, uint, uint);
 // ide.c
 void            ideinit(void);
 void            ideintr(void);
-void            iderw(struct buf*);
+void            iderw(struct buf_t*);
 
 // ioapic.c
 void            ioapicenable(int irq, int cpu);

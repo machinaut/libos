@@ -28,7 +28,7 @@ static void itrunc(struct inode*);
 static void
 readsb(int dev, struct superblock *sb)
 {
-  struct buf *bp;
+  struct buf_t *bp;
   
   bp = bread(dev, 1);
   memmove(sb, bp->data, sizeof(*sb));
@@ -39,7 +39,7 @@ readsb(int dev, struct superblock *sb)
 static void
 bzero(int dev, int bno)
 {
-  struct buf *bp;
+  struct buf_t *bp;
   
   bp = bread(dev, bno);
   memset(bp->data, 0, BSIZE);
@@ -54,7 +54,7 @@ static uint
 balloc(uint dev)
 {
   int b, bi, m;
-  struct buf *bp;
+  struct buf_t *bp;
   struct superblock sb;
 
   bp = 0;
@@ -79,7 +79,7 @@ balloc(uint dev)
 static void
 bfree(int dev, uint b)
 {
-  struct buf *bp;
+  struct buf_t *bp;
   struct superblock sb;
   int bi, m;
 
@@ -147,7 +147,7 @@ struct inode*
 ialloc(uint dev, short type)
 {
   int inum;
-  struct buf *bp;
+  struct buf_t *bp;
   struct dinode *dip;
   struct superblock sb;
 
@@ -171,7 +171,7 @@ ialloc(uint dev, short type)
 void
 iupdate(struct inode *ip)
 {
-  struct buf *bp;
+  struct buf_t *bp;
   struct dinode *dip;
 
   bp = bread(ip->dev, IBLOCK(ip->inum));
@@ -236,7 +236,7 @@ idup(struct inode *ip)
 void
 ilock(struct inode *ip)
 {
-  struct buf *bp;
+  struct buf_t *bp;
   struct dinode *dip;
 
   if(ip == 0 || ip->ref < 1)
@@ -320,7 +320,7 @@ static uint
 bmap(struct inode *ip, uint bn)
 {
   uint addr, *a;
-  struct buf *bp;
+  struct buf_t *bp;
 
   if(bn < NDIRECT){
     if((addr = ip->addrs[bn]) == 0)
@@ -353,7 +353,7 @@ static void
 itrunc(struct inode *ip)
 {
   int i, j;
-  struct buf *bp;
+  struct buf_t *bp;
   uint *a;
 
   for(i = 0; i < NDIRECT; i++){
@@ -395,7 +395,7 @@ int
 readi(struct inode *ip, char *dst, uint off, uint n)
 {
   uint tot, m;
-  struct buf *bp;
+  struct buf_t *bp;
 
   if(ip->type == T_DEV){
     if(ip->major < 0 || ip->major >= NDEV || !devsw[ip->major].read)
@@ -422,7 +422,7 @@ int
 writei(struct inode *ip, char *src, uint off, uint n)
 {
   uint tot, m;
-  struct buf *bp;
+  struct buf_t *bp;
 
   if(ip->type == T_DEV){
     if(ip->major < 0 || ip->major >= NDEV || !devsw[ip->major].write)
@@ -465,7 +465,7 @@ struct inode*
 dirlookup(struct inode *dp, char *name, uint *poff)
 {
   uint off, inum;
-  struct buf *bp;
+  struct buf_t *bp;
   struct dirent *de;
 
   if(dp->type != T_DIR)
