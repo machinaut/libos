@@ -91,6 +91,7 @@ void
 ideintr(void)
 {
   struct buf_t *b;
+	int done;
 
   // Take first buffer off queue.
   acquire(&idelock);
@@ -100,20 +101,29 @@ ideintr(void)
     return;
   }
   idequeue = b->qnext;
+	// TODO: this should probably be macro-ized
+	done = B_DONE(b->flags);
 
   // Read data if needed.
-  if(!(b->flags & B_DIRTY) && idewait(1) >= 0)
-    insl(0x1f0, b->data, 512/4);
+  if(!(b->flags & B_DIRTY) && idewait(1) >= 0) {
+    insl(0x1f0, b->data+done*512, 512/4);
+  }
+	b->flags = B_DONE_INC(b->flags);
   
-  // Wake process waiting for this buf.
-  b->flags |= B_VALID;
-  b->flags &= ~B_DIRTY;
-  wakeup(b);
-  
-  // Start disk on next buf in queue.
-  if(idequeue != 0)
-    idestart(idequeue);
-
+	if(done == B_DONE_MAX) { // done all sectors
+		// Wake process waiting for this buf.
+		b->flags |= B_VALID;
+		b->flags &= ~B_DIRTY;
+		wakeup(b);
+		
+		// Start disk on next buf in queue.
+		if(idequeue != 0)
+			idestart(idequeue);
+	} else {
+		b->flags &= ~0x38; // set done count back to 0
+		idestart(b); // go back to same buf, next sector
+	}
+		
   release(&idelock);
 }
 

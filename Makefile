@@ -173,6 +173,7 @@ clean:
 	*.o *.d *.asm *.sym vectors.S parport.out \
 	bootblock kernel xv6.img fs.img mkfs \
 	bootother bootother.out initcode initcode.out \
+	cscope.in.out cscope.out cscope.po.out \
 	$(UPROGS)
 
 # make a printout
@@ -222,3 +223,5 @@ qemu-nox-gdb: fs.img xv6.img .gdbinit
 	@echo "*** Now run 'gdb'." 1>&2
 	$(QEMU) -nographic $(QEMUOPTS) -S $(QEMUGDB)
 
+cscope:
+	@cscope -R -b -q
